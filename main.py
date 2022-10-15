@@ -8,6 +8,7 @@ from pygame.locals import (
     K_0,
     K_UP,
     K_DOWN,
+    K_SPACE,
 )
 
 pygame.init()
@@ -26,7 +27,7 @@ background_rescaled = pygame.transform.scale(background, (width, height))
 
 laser = pygame.image.load("laser.png")
 laser = pygame.transform.rotate(laser, 90)
-laser_rescaled = pygame.transform.scale(laser, (30, 40))
+laser_rescaled = pygame.transform.scale(laser, (80, 100))
 
 rock = pygame.image.load("rock.png")
 rock_rescaled = pygame.transform.scale(rock, (70, 80))
@@ -53,9 +54,9 @@ class Rocket:
 
 
 class Rock:
-    def __init__(self, rock_y=-200, image=rock_rescaled):
+    def __init__(self, rock_y=-200):
         super().__init__()
-        self.image = image
+        self.image = rock_rescaled
         self.rect = self.image.get_rect()
         self.x = rd.randint(0, width)
         self.y = rock_y
@@ -79,7 +80,27 @@ class Rock:
         return screen.blit(self.image, (self.rect.x, self.rect.y))
 
 
+class Laser:
+    def __init__(self):
+        super().__init__()
+        self.image = laser_rescaled
+        self.rect = self.image.get_rect()
+        self.x = player.x - 5
+        self.y = player.y - 70
+        self.width = laser_rescaled.get_width()
+        self.height = laser_rescaled.get_height()
+        self.vel = 40
+
+    def display(self):
+        self.rect.center = (self.x, self.y)
+        return screen.blit(self.image, (self.rect.x, self.rect.y))
+
+    def update(self):
+        self.y -= self.vel
+
+
 player = Rocket()
+laser = Laser()
 
 
 def main():
@@ -87,14 +108,20 @@ def main():
     point_count = 1
     level = 0
     objects = []
-    rock_count = 0
     start_ticks = pygame.time.get_ticks()
+    laser_list = []
+    time_elapsed_since_last_action = 0
+
     def rock_generator(x):
         for i in range(x):
             objects.append(Rock())
 
+    def laser_shooter():
+        laser_list.append(Laser())
+
     while running:
-        clock.tick(60)
+        ck = clock.tick(60)
+        time_elapsed_since_last_action += ck
         seconds = (pygame.time.get_ticks() - start_ticks) / 1000
         pressed_key = pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -119,9 +146,25 @@ def main():
             rock_generator(rock_count)
             level += 1
 
+        # SCREEN AND PLAYER DISPLAY
         screen.blit(background_rescaled, (0, 0))
         player.display()
 
+        # LASER DISPLAY
+        if pressed_key[K_SPACE] and time_elapsed_since_last_action > 100:
+            laser_shooter()
+            time_elapsed_since_last_action = 0
+        for obj in range(len(laser_list)):
+            laser_list[obj].display()
+            laser_list[obj].update()
+        for obj in range(len(laser_list)):
+            laser_rect = pygame.Rect(laser_list[obj].x, laser_list[obj].y, laser_list[obj].width, laser_list[obj].height)
+            rock_rect = pygame.Rect(objects[obj].x, objects[obj].y, objects[obj].width, objects[obj].height)
+            if pygame.Rect.colliderect(rock_rect, laser_rect):
+                objects[obj].pop
+
+
+        # LEVELER MORE ROCKS EVERY 10 SECONDS
         if seconds >= 10 and level == 1:
             rock_count = 13
             rock_generator(rock_count)
@@ -135,23 +178,24 @@ def main():
             rock_generator(rock_count)
             level += 1
 
+        # ROCK DISPLAY
         if level >= 1:
             for obj in range(len(objects)):
                 objects[obj].display()
                 objects[obj].update()
-
         if level >= 1:
             for obj in range(len(objects)):
                 if objects[obj].y == height + 5:
                     point_count += 1
 
+        # HIT DETECTION
         for obj in range(len(objects)):
             rock_rect = pygame.Rect(objects[obj].x, objects[obj].y, objects[obj].width, objects[obj].height)
-            player_rect = pygame.Rect(player.x, player.y, player.width, player.height)
+            player_rect = pygame.Rect(player.x + 10, player.y + 10, player.width - 10, player.height - 10)
             if pygame.Rect.colliderect(rock_rect, player_rect):
                 running = False
 
-        pygame.display.set_caption(str(point_count))
+        pygame.display.set_caption("POINT COUNT " + str(point_count))
         pygame.display.update()
 
 
