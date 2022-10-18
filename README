@@ -1,0 +1,19 @@
+Thanks for trying my game!
+
+Steps for install:
+1. Download ALL files in the repository
+2. Run the "main.py" file with your Python interpreter
+3. If the file fails to run make sure you have pygame and the random module for python installed in your interpreter.
+4. Once the game is launched press "0" to begin
+5. There is a point counter in the bottom right, destroy as many space rocks as you can!
+6. If a rock hits you the game ends and each rock destoryed is 1 point.
+
+Commands for the game are as follows:
+Arrow up - Moves Rocket ship up
+Arrow down - Moves Rocket ship down
+Arrow left - Moves Rocket ship left
+Arrow right - Moves Rocket ship right
+Spacebar - Shoots a laser
+"0" Key above O and P is to start the game
+
+I plan on updating the game until I run out of ideas.
