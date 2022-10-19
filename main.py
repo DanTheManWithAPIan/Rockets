@@ -14,6 +14,7 @@ from pygame.locals import (
 )
 
 pygame.init()
+pygame.display.set_caption("ROCKETS")
 width = 1280
 height = 720
 background_color = (255, 255, 255)
@@ -21,34 +22,34 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode([width, height])
 screen_rect = screen.get_rect()
 center = ((screen.get_width() / 2), 50)
-point_font = pygame.font.SysFont('arial', 40)
-txt_font = pygame.font.SysFont('arial', 20)
-intro_font = pygame.font.SysFont('arial', 100)
-start_font = pygame.font.SysFont('arial', 60)
+point_font = pygame.font.SysFont('Showcard Gothic', 40)
+txt_font = pygame.font.SysFont('Showcard Gothic', 20)
+intro_font = pygame.font.SysFont('Showcard Gothic', 100)
+start_font = pygame.font.SysFont('Showcard Gothic', 60)
 
-rocket = pygame.image.load("rocket.png")
+rocket = pygame.image.load("rocket.png").convert_alpha()
 rocket_rescaled = pygame.transform.scale(rocket, (70, 100))
 
-background = pygame.image.load("background.png")
+background = pygame.image.load("background.png").convert_alpha()
 background_rescaled = pygame.transform.scale(background, (width, height))
 
-laser = pygame.image.load("laser.png")
+laser = pygame.image.load("laser.png").convert_alpha()
 laser = pygame.transform.rotate(laser, 90)
 laser_rescaled = pygame.transform.scale(laser, (80, 100))
 
-rock = pygame.image.load("rock.png")
-rock_rescaled = pygame.transform.scale(rock, (70, 80))
+rock = pygame.image.load("rock.png").convert_alpha()
+rock_rescaled_sm = pygame.transform.scale(rock, (70, 80))
+rock_rescaled_md = pygame.transform.scale(rock, (100, 110))
 
-point_bar = pygame.image.load("pointbar.png")
+point_bar = pygame.image.load("pointbar.png").convert_alpha()
 pb_rescaled = pygame.transform.scale(point_bar, (150, 50))
 
-explosion1 = pygame.image.load("explosion1.png")
-explosion2 = pygame.image.load("explosion2.png")
-explosion3 = pygame.image.load("explosion3.png")
+explosion1 = pygame.image.load("explosion1.png").convert_alpha()
+explosion2 = pygame.image.load("explosion2.png").convert_alpha()
+explosion3 = pygame.image.load("explosion3.png").convert_alpha()
 explosion1 = pygame.transform.scale(explosion1, (100, 105))
 explosion2 = pygame.transform.scale(explosion2, (120, 127))
 explosion3 = pygame.transform.scale(explosion3, (140, 150))
-
 
 
 class Rocket:
@@ -74,20 +75,20 @@ class Rocket:
 class Rock:
     def __init__(self, rock_y=-200):
         super().__init__()
-        self.image = rock_rescaled
+        self.image = rd.choice([rock_rescaled_sm, rock_rescaled_md])
         self.x = rd.randint(0, width)
         self.y = rock_y
-        self.width = rock_rescaled.get_width()
-        self.height = rock_rescaled.get_height()
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.vel = rd.randint(1, 5)
         self.chance = rd.uniform(0, 1)
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def update(self):
         self.y += self.vel
-        if self.chance < .5:
+        if self.chance < .4:
             self.x -= self.vel
-        if self.chance > .6:
+        if self.chance > .7:
             self.x += self.vel
         if self.y >= height + 10:
             self.y = -100
@@ -132,12 +133,10 @@ def main():
     start_ticks = pygame.time.get_ticks()
     time_elapsed_since_last_action = 0
     ending_timer = 0
+
     def rock_generator(x):
         for i in range(x):
             objects.append(Rock())
-
-    def laser_shooter():
-        laser_list.append(Laser())
 
     while running:
         ck = clock.tick(60)
@@ -149,22 +148,20 @@ def main():
                 running = False
             if pressed_key[K_ESCAPE]:
                 running = False
-        if pressed_key[K_LEFT] and not loser:
-            if player.rect.x > screen_rect.left:
+        # Movement inputs below
+        if not loser:
+            if pressed_key[K_LEFT] and player.rect.x > screen_rect.left:
                 player.x -= player.vel
-        if pressed_key[K_RIGHT] and not loser:
-            if player.rect.x < screen_rect.right - 70:
+            if pressed_key[K_RIGHT] and player.rect.x <= screen_rect.right - 70:
                 player.x += player.vel
-        if pressed_key[K_UP] and not loser:
-            if player.y >= screen_rect.top + 500:
+            if pressed_key[K_UP] and player.y >= screen_rect.top + 500:
                 player.y -= player.vel
-        if pressed_key[K_DOWN] and not loser:
-            if player.y <= screen_rect.bottom - 60:
+            if pressed_key[K_DOWN] and player.y <= screen_rect.bottom - 60:
                 player.y += player.vel
-        if pressed_key[K_s] and level == 0:
-            rock_generator(30)
-            intro = False
-            level += 1
+            if pressed_key[K_s] and level == 0:
+                rock_generator(20)
+                intro = False
+                level += 1
 
         # SCREEN AND PLAYER DISPLAY
         screen.blit(background_rescaled, (0, 0))
@@ -174,7 +171,7 @@ def main():
         # LASER DISPLAY
         if not intro and not loser:
             if pressed_key[K_SPACE] and time_elapsed_since_last_action > 400:
-                laser_shooter()
+                laser_list.append(Laser())
                 time_elapsed_since_last_action = 0
             for obj in range(len(laser_list)):
                 laser_list[obj].display()
@@ -191,27 +188,26 @@ def main():
                         laser_list.remove(laser)
                         point_count += 1
 
+        if len(objects) == 1:
+            level += 1
+
         # LEVELER MORE ROCKS EVERY 10 SECONDS
         if not intro and not loser:
-            if seconds > 20 and level == 1:
-                rock_generator(50)
+            if level == 2:
+                rock_generator(20)
                 level += 1
-            elif seconds > 40 and level == 2:
-                rock_generator(70)
+            elif level == 3:
+                rock_generator(20)
                 level += 1
-            elif seconds > 60 and level == 3:
-                rock_generator(80)
+            elif level == 4:
+                rock_generator(20)
                 level += 1
-
-        # ROCK DISPLAY
-        if not intro and not loser:
-            for obj in range(len(objects)):
-                objects[obj].display()
-                objects[obj].update()
 
         # HIT DETECTION FOR PLAYER AND ROCKS
         if not intro and not loser:
             for obj in range(len(objects)):
+                objects[obj].display()
+                objects[obj].update()
                 rock_rect = pygame.Rect(objects[obj].x, objects[obj].y, objects[obj].width, objects[obj].height)
                 player_rect = pygame.Rect(player.x + 10, player.y + 10, player.width - 10, player.height - 10)
                 if pygame.Rect.colliderect(rock_rect, player_rect):
@@ -222,40 +218,42 @@ def main():
             screen.blit(pb_rescaled, (width - 162, 660))
             points = point_font.render(str(point_count), True, (255, 255, 255))
             total_points_txt = txt_font.render("POINTS:", True, (255, 255, 255))
-            screen.blit(total_points_txt, (width - 150, 672))
-            screen.blit(points, (width - 70, 662))
+            screen.blit(total_points_txt, (width - 150, 675))
+            screen.blit(points, (width - 65, 669))
 
         # Below is rendering intro screen
         if intro:
-            intro_txt = intro_font.render("Welcome to -ROCKETS-", True, (255, 255, 255))
+            intro_txt = intro_font.render("Welcome to ROCKETS", True, (255, 255, 255))
             start_txt = start_font.render("Press -S- to start!", True, (255, 255, 255))
-            screen.blit(intro_txt, (width - 1100, height - 600))
-            screen.blit(start_txt, (width - 850, height - 450))
+            screen.blit(intro_txt, (width - 1190, height - 600))
+            screen.blit(start_txt, (width - 925, height - 450))
 
-        if loser:
+        # Below is outro screen
+        if loser and not intro:
             ending_timer += ck
             if 2000 > ending_timer > 0:
                 screen.blit(explosion1, (player.x - 30, player.y - 30))
             if ending_timer > 1000:
                 loser_txt = intro_font.render("Well Played", True, (255, 255, 255))
-                screen.blit(loser_txt, (width - 850, height - 600))
-            if 3000 > ending_timer > 2000:
+                screen.blit(loser_txt, (width - 980, height - 600))
+            if 3500 > ending_timer > 2000:
                 screen.blit(explosion2, (player.x - 40, player.y - 40))
             if ending_timer > 3000:
                 score_txt1 = intro_font.render("Score:", True, (255, 255, 255))
                 score_txt2 = intro_font.render(str(point_count), True, (255, 255, 255))
-                screen.blit(score_txt1, (width - 820, height - 500))
-                screen.blit(score_txt2, (width - 510, height - 495))
+                screen.blit(score_txt1, (width - 850, height - 500))
+                screen.blit(score_txt2, (width - 500, height - 495))
+            if ending_timer > 3500:
                 screen.blit(explosion3, (player.x - 50, player.y - 50))
             if ending_timer > 5000:
                 exit_txt = txt_font.render("Press ESC to exit", True, (255, 255, 255))
-                screen.blit(exit_txt, (width - 720, height - 200))
+                screen.blit(exit_txt, (width - 750, height - 200))
             if ending_timer > 10000 and loser:
                 player.x = 10000
                 player.y = 10000
             if pressed_key[K_r]:
                 loser = False
-        pygame.display.set_caption("ROCKETS")
+
         pygame.display.update()
 
 
