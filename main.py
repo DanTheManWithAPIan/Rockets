@@ -1,4 +1,3 @@
-import itertools
 import pygame
 import random as rd
 
@@ -27,29 +26,29 @@ txt_font = pygame.font.SysFont('Showcard Gothic', 20)
 intro_font = pygame.font.SysFont('Showcard Gothic', 100)
 start_font = pygame.font.SysFont('Showcard Gothic', 60)
 
-rocket = pygame.image.load("rocket.png").convert_alpha()
+rocket = pygame.image.load("images/rocket.png").convert_alpha()
 rocket_rescaled = pygame.transform.scale(rocket, (70, 100))
 
-background = pygame.image.load("background.png").convert_alpha()
+background = pygame.image.load("images/background.png").convert_alpha()
 background_rescaled = pygame.transform.scale(background, (width, height))
 
-laser = pygame.image.load("laser.png").convert_alpha()
+laser = pygame.image.load("images/laser.png").convert_alpha()
 laser = pygame.transform.rotate(laser, 90)
 laser_rescaled = pygame.transform.scale(laser, (80, 100))
 
-rock = pygame.image.load("rock.png").convert_alpha()
+rock = pygame.image.load("images/rock.png").convert_alpha()
 rock_rescaled_sm = pygame.transform.scale(rock, (70, 80))
 rock_rescaled_md = pygame.transform.scale(rock, (100, 110))
 
-point_bar = pygame.image.load("pointbar.png").convert_alpha()
+point_bar = pygame.image.load("images/pointbar.png").convert_alpha()
 pb_rescaled = pygame.transform.scale(point_bar, (170, 60))
 
-explosion1 = pygame.image.load("explosion1.png").convert_alpha()
-explosion2 = pygame.image.load("explosion2.png").convert_alpha()
-explosion3 = pygame.image.load("explosion3.png").convert_alpha()
-explosion4 = pygame.image.load("explosion4.png").convert_alpha()
-explosion5 = pygame.image.load("explosion5.png").convert_alpha()
-explosion6 = pygame.image.load("explosion6.png").convert_alpha()
+explosion1 = pygame.image.load("images/explosion1.png").convert_alpha()
+explosion2 = pygame.image.load("images/explosion2.png").convert_alpha()
+explosion3 = pygame.image.load("images/explosion3.png").convert_alpha()
+explosion4 = pygame.image.load("images/explosion4.png").convert_alpha()
+explosion5 = pygame.image.load("images/explosion5.png").convert_alpha()
+explosion6 = pygame.image.load("images/explosion6.png").convert_alpha()
 explosion1 = pygame.transform.scale(explosion1, (100, 105))
 explosion2 = pygame.transform.scale(explosion2, (120, 127))
 explosion3 = pygame.transform.scale(explosion3, (140, 150))
