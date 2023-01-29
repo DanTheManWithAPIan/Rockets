@@ -1,5 +1,8 @@
 import pygame
+import intro, outro
 import random as rd
+from outro import outro_scene
+from intro import intro_scene
 
 from pygame.locals import (
     K_LEFT,
@@ -125,6 +128,12 @@ class Laser:
 
 player = Rocket()
 laser = Laser()
+objects = []
+
+
+def rock_generator(x):
+    for i in range(x):
+        objects.append(Rock())
 
 
 def main():
@@ -134,7 +143,6 @@ def main():
     running = True
     point_count = 1
     level = 0
-    objects = []
     laser_list = []
     start_ticks = pygame.time.get_ticks()
     time_elapsed_since_last_action = 0
@@ -239,13 +247,10 @@ def main():
 
         # Below is rendering intro screen
         if intro:
-            intro_txt = intro_font.render("Welcome to ROCKETS", True, (255, 255, 255))
-            start_txt = start_font.render("Press -S- to start!", True, (255, 255, 255))
-            screen.blit(intro_txt, (width - 1190, height - 600))
-            screen.blit(start_txt, (width - 925, height - 450))
-
+            intro_scene(screen, start_font, intro_font, width, height)
         # Below is loser end screen
         if loser and not intro and not winner:
+            ck = pygame.clock.tick
             ending_timer += ck
             if 2000 > ending_timer > 0:
                 screen.blit(explosion1, (player.x - 30, player.y - 30))
@@ -285,18 +290,7 @@ def main():
         # Below is winner end screen
         if winner and not intro:
             objects.clear()
-            ending_timer += ck
-            if ending_timer > 1000:
-                winner_txt = intro_font.render("YOU WIN!", True, (255, 255, 255))
-                screen.blit(winner_txt, (width - 850, height - 600))
-            if ending_timer > 3000:
-                score_txt1 = intro_font.render("Score:", True, (255, 255, 255))
-                score_txt2 = intro_font.render(str(point_count), True, (255, 255, 255))
-                screen.blit(score_txt1, (width - 860, height - 500))
-                screen.blit(score_txt2, (width - 510, height - 495))
-            if ending_timer > 5000:
-                exit_txt = txt_font.render("Press ESC to exit", True, (255, 255, 255))
-                screen.blit(exit_txt, (width - 750, height - 200))
+            outro_scene(width, height, intro_font, txt_font, screen, point_count)
 
         pygame.display.update()
 
